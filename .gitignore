@@ -1,0 +1,15 @@
+# Windows:
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# rust
+main
+
+# file
+.DS_Store
+
+# dir
+.idea/
+../.idea/
+.vscode/
