@@ -1,0 +1,99 @@
+%jdbc
+
+insert into api_service.lft_bill_deal_result_all 
+(core_no,bill_id,clear_date,merchant_id,order_no,cashier_order_no,trans_amount,merchant_no,recevier_uni_marker,merchant_name,bill_create_time) 
+SELECT
+	bo.id core_no,
+  9 bill_id,
+  date_format(cl.finish_time, '%Y%m%d') clear_date,
+  '000000' merchant_id,
+ ifnull(bo.business_order_no,'') AS order_no,
+ ifnull(bo.order_no,'') AS cashier_order_no,
+ ifnull(JSON_EXTRACT(share_order_infos, '$[0].amount'),'') trans_amount,
+ ifnull(JSON_UNQUOTE(JSON_EXTRACT(share_order_infos, '$[0].merchantNo')),'') merchant_no,
+ ifnull(acc.account_email,'') recevier_uni_marker,
+ ifnull(acc.m_name,'') merchant_name,
+ now()
+FROM
+ lft_ewallet.business_order bo
+ inner JOIN lft_ewallet.pay_order po ON po.business_order_id = bo.id
+ inner join lift_c.t_cash_cleard_deal cl on cl.tp_trade_no=po.order_no
+ inner JOIN lft_ewallet.merchant_config_core mcc ON bo.business_no = mcc.bus_id 
+ inner join bill_center.platform_dict dict on mcc.tp_id = dict.remark and dict.type=4
+ inner join lift_quick.t_pay_account  pa on JSON_UNQUOTE(JSON_EXTRACT(bo.share_order_infos, '$[0].shareBizCode'))=pa.bus_code and pa.APPROVAL_STATUS = 0
+ and  JSON_UNQUOTE(JSON_EXTRACT(bo.share_order_infos, '$[0].merchantNo'))=pa.lft_mch_no 
+ inner join lft_merchant.m_account acc on pa.lft_ehp_acct_no=acc.accCode
+WHERE po.status IN ('30','50')  AND bo.status IN ('30','50') AND bo.type = '1' 
+and cl.pay_product_type=pa.product_no and bo.share_order_infos is not null and bo.share_order_infos !='[]'
+and 
+ mcc.pay_type = 
+CASE
+    WHEN po.pay_type IN ( '21', '22' ) THEN
+   '001' 
+  WHEN po.pay_type IN ( '81', '82' ) THEN
+  '401' 
+  WHEN po.pay_type = '10' THEN
+  '003' 
+  WHEN po.pay_type = '31' THEN
+  '002' 
+  WHEN po.pay_type = '32' THEN
+  '005' 
+  WHEN po.pay_type = '33' THEN
+  '006' 
+  WHEN po.pay_type = '35' THEN
+  '008' 
+  WHEN po.pay_type = '50' THEN
+  '301' 
+  WHEN po.pay_type = '100' THEN
+  '120' 
+  END
+and cl.finish_time  between '2019-11-01 00:00:00' AND '2019-11-01 23:59:00'
+union
+SELECT
+	bo.id core_no,
+  9 bill_id,
+  date_format(cl.finish_time, '%Y%m%d') clear_date,
+  '000000' merchant_id,
+ ifnull(bo.business_order_no,'') AS order_no,
+ ifnull(bo.order_no,'') AS cashier_order_no,
+ ifnull(po.pay_amount,'') trans_amount,
+ '20180531557' merchant_no,
+ 'ZLBY-B@zijinjianguan.com' recevier_uni_marker,
+ '德佑（天津）房地产经纪服务有限公司' merchant_name,
+ now()
+FROM
+ lft_ewallet.business_order bo
+ inner JOIN lft_ewallet.pay_order po ON po.business_order_id = bo.id
+ inner join lift_c.t_cash_cleard_deal cl on cl.tp_trade_no=po.order_no
+ inner JOIN lft_ewallet.merchant_config_core mcc ON bo.business_no = mcc.bus_id 
+ inner join bill_center.platform_dict dict on mcc.tp_id = dict.remark and dict.type=4
+WHERE po.status IN ('30','50')  AND bo.status IN ('30','50') AND bo.type = '1' 
+and (bo.share_order_infos is null or bo.share_order_infos ='[]')
+and 
+ mcc.pay_type = 
+CASE
+    WHEN po.pay_type IN ( '21', '22' ) THEN
+   '001' 
+  WHEN po.pay_type IN ( '81', '82' ) THEN
+  '401' 
+  WHEN po.pay_type = '10' THEN
+  '003' 
+  WHEN po.pay_type = '31' THEN
+  '002' 
+  WHEN po.pay_type = '32' THEN
+  '005' 
+  WHEN po.pay_type = '33' THEN
+  '006' 
+  WHEN po.pay_type = '35' THEN
+  '008' 
+  WHEN po.pay_type = '50' THEN
+  '301' 
+  WHEN po.pay_type = '100' THEN
+  '120' 
+  END
+and cl.finish_time  between '2019-11-01 00:00:00' AND '2019-11-01 23:59:00'
+
+
+
+
+
