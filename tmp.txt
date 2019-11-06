@@ -1,5 +1,7 @@
 %jdbc
 
+api_service.lft_bill_deal_result_all,lft_ewallet.business_order,lft_ewallet.pay_order,lift_c.t_cash_cleard_deal,lft_ewallet.merchant_config_core,bill_center.platform_dict,lift_quick.t_pay_account,lft_merchant.m_account
+
 insert into api_service.lft_bill_deal_result_all 
 (core_no,bill_id,clear_date,merchant_id,order_no,cashier_order_no,trans_amount,merchant_no,recevier_uni_marker,merchant_name,bill_create_time) 
 SELECT
